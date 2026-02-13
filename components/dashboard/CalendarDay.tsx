@@ -45,9 +45,9 @@ export default function CalendarDay({
   const isLast10 = isLastTenNights(dayNumber);
   const isOdd = isOddNight(dayNumber);
 
-  // Base styles - journal-style cells
+  // Base styles - journal-style cells (larger on mobile for easier tapping)
   const baseClasses =
-    'h-14 md:h-16 rounded-xl flex flex-col items-center justify-center relative transition-all duration-200 cursor-pointer select-none group';
+    'h-16 sm:h-14 md:h-16 rounded-xl flex flex-col items-center justify-center relative transition-all duration-200 cursor-pointer select-none group active:scale-95';
 
   // Status-based styles
   let statusClasses = '';

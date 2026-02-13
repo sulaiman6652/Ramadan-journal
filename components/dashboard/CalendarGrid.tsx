@@ -106,7 +106,7 @@ export default function CalendarGrid({
           <>
             {weekDays.map((dayNumber, i) => {
               if (dayNumber === null) {
-                return <div key={`empty-${i}`} className="h-14 md:h-16" />;
+                return <div key={`empty-${i}`} className="h-16 sm:h-14 md:h-16" />;
               }
 
               const dayStatus = statusMap.get(dayNumber);
@@ -140,7 +140,7 @@ export default function CalendarGrid({
           <>
             {/* Empty cells before Day 1 */}
             {Array.from({ length: startDayOfWeek }).map((_, i) => (
-              <div key={`pre-${i}`} className="h-14 md:h-16" />
+              <div key={`pre-${i}`} className="h-16 sm:h-14 md:h-16" />
             ))}
 
             {/* Calendar days */}
@@ -174,7 +174,7 @@ export default function CalendarGrid({
 
             {/* Empty cells after last day */}
             {Array.from({ length: trailingEmpty }).map((_, i) => (
-              <div key={`post-${i}`} className="h-14 md:h-16" />
+              <div key={`post-${i}`} className="h-16 sm:h-14 md:h-16" />
             ))}
           </>
         )}
