@@ -73,6 +73,13 @@ export default function SignupPage() {
         return;
       }
 
+      // Send WhatsApp notification (don't await - fire and forget)
+      fetch('/api/notify-signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userName: fullName, userEmail: email }),
+      }).catch(() => {}); // Silently ignore errors
+
       router.push('/setup');
     } catch {
       setError('An unexpected error occurred. Please try again.');

@@ -55,9 +55,15 @@ export default function CalendarDay({
   let hoverClasses = '';
   let dateColor = '';
 
-  // Today gets special green highlight (unless already complete)
+  // Today gets special gold highlight to stand out
   if (isToday && status !== 'complete') {
-    statusClasses = 'bg-gradient-to-br from-[var(--green-light)] to-[var(--green-medium)] shadow-lg shadow-[var(--green-medium)]/30 ring-2 ring-[var(--gold)]/50 ring-offset-2 ring-offset-white';
+    statusClasses = 'bg-gradient-to-br from-[var(--gold)] to-[#c4a052] shadow-lg shadow-[var(--gold)]/40 ring-2 ring-white/70 ring-offset-2 ring-offset-[var(--cream)]';
+    textColor = 'text-white';
+    dateColor = 'text-white/80';
+    hoverClasses = 'hover:shadow-xl hover:scale-[1.03]';
+  } else if (isToday && status === 'complete') {
+    // Today completed - gold background with green accent
+    statusClasses = 'bg-gradient-to-br from-[var(--gold)] to-[#c4a052] shadow-lg shadow-[var(--gold)]/40 ring-2 ring-[var(--green-dark)] ring-offset-2 ring-offset-white';
     textColor = 'text-white';
     dateColor = 'text-white/80';
     hoverClasses = 'hover:shadow-xl hover:scale-[1.03]';
@@ -116,12 +122,12 @@ export default function CalendarDay({
     }
   }
 
-  // Ring for selected state only (today already has green background)
+  // Ring for selected state only (today already has gold background)
   let ringClasses = '';
   if (isSelected && !isToday) {
     ringClasses = 'ring-2 ring-[var(--green-medium)] ring-offset-1 ring-offset-white';
   } else if (isSelected && isToday) {
-    ringClasses = 'ring-2 ring-[var(--gold)] ring-offset-1 ring-offset-white';
+    ringClasses = 'ring-2 ring-[var(--green-dark)] ring-offset-1 ring-offset-white';
   }
 
   return (
@@ -166,10 +172,10 @@ export default function CalendarDay({
         </div>
       )}
 
-      {/* Smaller checkmark for today if complete */}
+      {/* Checkmark for today if complete - green to contrast with gold background */}
       {status === 'complete' && isToday && (
-        <div className="absolute -top-1 -left-1 w-4 h-4 bg-[var(--gold)] rounded-full flex items-center justify-center shadow-sm">
-          <svg className="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+        <div className="absolute -top-1.5 -left-1.5 w-5 h-5 bg-gradient-to-br from-[var(--green-dark)] to-[var(--green-medium)] rounded-full flex items-center justify-center shadow-md border-2 border-white">
+          <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
           </svg>
         </div>
@@ -177,7 +183,7 @@ export default function CalendarDay({
 
       {/* Today badge */}
       {isToday && (
-        <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 px-1.5 py-0.5 bg-white rounded-full text-[6px] font-bold text-[var(--green-dark)] uppercase tracking-wider shadow-md border border-[var(--green-light)]">
+        <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 px-1.5 py-0.5 bg-[var(--green-dark)] rounded-full text-[6px] font-bold text-white uppercase tracking-wider shadow-md">
           Today
         </div>
       )}
