@@ -4,7 +4,9 @@ import { useReducer, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { GoalTemplate, GoalFormData, TemplateCategory } from '@/types';
 import { createClient } from '@/lib/supabase/client';
+import { RAMADAN_START_DATE } from '@/lib/goalCalculations';
 import StepIndicator from './StepIndicator';
+import QuickGoalsStep from './QuickGoalsStep';
 import CategoryStep from './CategoryStep';
 import TemplateStep from './TemplateStep';
 import CustomizeStep from './CustomizeStep';
@@ -16,15 +18,20 @@ interface WizardState {
   selectedTemplate: GoalTemplate | null;
   currentGoal: GoalFormData | null;
   allGoals: GoalFormData[];
+  isCustomFlow: boolean;
 }
 
 type WizardAction =
+  | { type: 'QUICK_ADD_GOAL'; payload: GoalFormData }
+  | { type: 'REMOVE_GOAL'; payload: string }
+  | { type: 'START_CUSTOM_FLOW' }
   | { type: 'SELECT_CATEGORY'; payload: TemplateCategory }
   | { type: 'SELECT_TEMPLATE'; payload: GoalTemplate }
   | { type: 'SELECT_CUSTOM' }
   | { type: 'CONFIRM_GOAL'; payload: GoalFormData }
   | { type: 'ADD_ANOTHER' }
-  | { type: 'GO_BACK' };
+  | { type: 'GO_BACK' }
+  | { type: 'GO_TO_REVIEW' };
 
 const initialState: WizardState = {
   step: 0,
@@ -32,14 +39,37 @@ const initialState: WizardState = {
   selectedTemplate: null,
   currentGoal: null,
   allGoals: [],
+  isCustomFlow: false,
 };
 
 function wizardReducer(state: WizardState, action: WizardAction): WizardState {
   switch (action.type) {
+    case 'QUICK_ADD_GOAL':
+      return {
+        ...state,
+        allGoals: [...state.allGoals, action.payload],
+      };
+
+    case 'REMOVE_GOAL':
+      return {
+        ...state,
+        allGoals: state.allGoals.filter(g => g.name !== action.payload),
+      };
+
+    case 'START_CUSTOM_FLOW':
+      // Go directly to customize step (step 3) for custom goals
+      return {
+        ...state,
+        step: 3,
+        isCustomFlow: true,
+        selectedCategory: 'custom',
+        selectedTemplate: null,
+      };
+
     case 'SELECT_CATEGORY':
       return {
         ...state,
-        step: 1,
+        step: 2,
         selectedCategory: action.payload,
         selectedTemplate: null,
       };
@@ -47,21 +77,21 @@ function wizardReducer(state: WizardState, action: WizardAction): WizardState {
     case 'SELECT_TEMPLATE':
       return {
         ...state,
-        step: 2,
+        step: 3,
         selectedTemplate: action.payload,
       };
 
     case 'SELECT_CUSTOM':
       return {
         ...state,
-        step: 2,
+        step: 3,
         selectedTemplate: null,
       };
 
     case 'CONFIRM_GOAL':
       return {
         ...state,
-        step: 3,
+        step: 4,
         currentGoal: action.payload,
       };
 
@@ -72,19 +102,45 @@ function wizardReducer(state: WizardState, action: WizardAction): WizardState {
         selectedCategory: null,
         selectedTemplate: null,
         currentGoal: null,
+        isCustomFlow: false,
         allGoals: state.currentGoal
           ? [...state.allGoals, state.currentGoal]
           : state.allGoals,
       };
 
+    case 'GO_TO_REVIEW':
+      return {
+        ...state,
+        step: 4,
+        currentGoal: state.allGoals[state.allGoals.length - 1] || null,
+        allGoals: state.allGoals.slice(0, -1),
+      };
+
     case 'GO_BACK':
       if (state.step === 0) return state;
+      // If in custom flow at step 3, go back to step 0
+      if (state.isCustomFlow && state.step === 3 && state.selectedCategory === 'custom') {
+        return {
+          ...state,
+          step: 0,
+          isCustomFlow: false,
+          selectedCategory: null,
+          selectedTemplate: null,
+        };
+      }
+      if (state.step === 1) {
+        return {
+          ...state,
+          step: 0,
+          isCustomFlow: false,
+        };
+      }
       return {
         ...state,
         step: state.step - 1,
-        ...(state.step === 1 && { selectedCategory: null }),
-        ...(state.step === 2 && { selectedTemplate: null }),
-        ...(state.step === 3 && { currentGoal: null }),
+        ...(state.step === 2 && { selectedCategory: null }),
+        ...(state.step === 3 && { selectedTemplate: null }),
+        ...(state.step === 4 && { currentGoal: null }),
       };
 
     default:
@@ -99,7 +155,11 @@ export default function SetupWizard() {
   const router = useRouter();
 
   const handleFinish = async () => {
-    if (!state.currentGoal) return;
+    const goalsToSave = state.currentGoal
+      ? [...state.allGoals, state.currentGoal]
+      : state.allGoals;
+
+    if (goalsToSave.length === 0) return;
 
     setIsSubmitting(true);
     setError(null);
@@ -126,7 +186,7 @@ export default function SetupWizard() {
           .insert({
             id: user.id,
             full_name: user.user_metadata?.full_name || null,
-            ramadan_start_date: '2025-03-01',
+            ramadan_start_date: RAMADAN_START_DATE,
           });
 
         if (profileError) {
@@ -136,9 +196,7 @@ export default function SetupWizard() {
         }
       }
 
-      const allGoals = [...state.allGoals, state.currentGoal];
-
-      const goalsToInsert = allGoals.map((goal) => ({
+      const goalsToInsert = goalsToSave.map((goal) => ({
         user_id: user.id,
         name: goal.name,
         goal_type: goal.goal_type,
@@ -156,7 +214,8 @@ export default function SetupWizard() {
         .insert(goalsToInsert);
 
       if (insertError) {
-        setError('Something went wrong saving your goals. Please try again.');
+        console.error('Goal insert error:', insertError);
+        setError(`Failed to save goals: ${insertError.message || 'Unknown error'}`);
         setIsSubmitting(false);
         return;
       }
@@ -166,6 +225,12 @@ export default function SetupWizard() {
       setError('An unexpected error occurred. Please try again.');
       setIsSubmitting(false);
     }
+  };
+
+  const getStepCount = () => {
+    if (state.step === 0) return 0;
+    if (state.isCustomFlow) return state.step;
+    return state.step;
   };
 
   return (
@@ -191,7 +256,7 @@ export default function SetupWizard() {
             </p>
           </div>
 
-          <StepIndicator currentStep={state.step} totalSteps={4} />
+          {state.isCustomFlow && state.selectedCategory !== 'custom' && <StepIndicator currentStep={getStepCount()} totalSteps={5} />}
 
           {/* Error banner */}
           {error && (
@@ -215,6 +280,35 @@ export default function SetupWizard() {
           {/* Step content */}
           <div className="animate-fade-in">
             {state.step === 0 && (
+              <>
+                <QuickGoalsStep
+                  onAddGoal={(goal) => dispatch({ type: 'QUICK_ADD_GOAL', payload: goal })}
+                  onRemoveGoal={(goalName) => dispatch({ type: 'REMOVE_GOAL', payload: goalName })}
+                  onCustomGoal={() => dispatch({ type: 'START_CUSTOM_FLOW' })}
+                  addedGoals={state.allGoals}
+                />
+
+                {/* Continue Button - show when goals are added */}
+                {state.allGoals.length > 0 && (
+                  <div className="mt-8 max-w-3xl mx-auto">
+                    <button
+                      onClick={handleFinish}
+                      className="w-full py-4 px-6 bg-gradient-to-r from-[var(--green-dark)] to-[var(--green-medium)] text-white text-lg font-bold rounded-xl hover:shadow-xl hover:shadow-[var(--green-dark)]/20 transition-all flex items-center justify-center gap-3"
+                    >
+                      <span>Start Your Ramadan Journey</span>
+                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                      </svg>
+                    </button>
+                    <p className="text-center text-sm text-[var(--text-muted)] mt-3">
+                      You can always add more goals later from the Goals page
+                    </p>
+                  </div>
+                )}
+              </>
+            )}
+
+            {state.step === 1 && state.isCustomFlow && (
               <CategoryStep
                 onSelect={(category) =>
                   dispatch({ type: 'SELECT_CATEGORY', payload: category })
@@ -222,7 +316,7 @@ export default function SetupWizard() {
               />
             )}
 
-            {state.step === 1 && state.selectedCategory && (
+            {state.step === 2 && state.selectedCategory && (
               <TemplateStep
                 category={state.selectedCategory}
                 onSelectTemplate={(template) =>
@@ -233,7 +327,7 @@ export default function SetupWizard() {
               />
             )}
 
-            {state.step === 2 && state.selectedCategory && (
+            {state.step === 3 && state.selectedCategory && (
               <CustomizeStep
                 template={state.selectedTemplate}
                 category={state.selectedCategory}
@@ -244,7 +338,7 @@ export default function SetupWizard() {
               />
             )}
 
-            {state.step === 3 && state.currentGoal && (
+            {state.step === 4 && state.currentGoal && (
               <ReviewStep
                 goals={state.allGoals}
                 currentGoal={state.currentGoal}
@@ -254,6 +348,21 @@ export default function SetupWizard() {
               />
             )}
           </div>
+
+          {/* Back button for custom flow */}
+          {state.isCustomFlow && state.step === 1 && (
+            <div className="mt-6 text-center">
+              <button
+                onClick={() => dispatch({ type: 'GO_BACK' })}
+                className="inline-flex items-center gap-2 px-4 py-2 text-[var(--text-secondary)] hover:text-[var(--green-dark)] transition-colors"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+                Back to Quick Goals
+              </button>
+            </div>
+          )}
 
           {/* Loading overlay */}
           {isSubmitting && (

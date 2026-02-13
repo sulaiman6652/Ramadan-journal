@@ -8,7 +8,7 @@ create extension if not exists "uuid-ossp";
 create table if not exists profiles (
   id uuid references auth.users on delete cascade primary key,
   full_name text,
-  ramadan_start_date text not null default '2025-03-01',
+  ramadan_start_date text not null default '2026-02-17',
   created_at timestamp with time zone default timezone('utc', now())
 );
 
@@ -17,11 +17,12 @@ create table if not exists goals (
   id uuid default uuid_generate_v4() primary key,
   user_id uuid references auth.users on delete cascade not null,
   name text not null,
-  goal_type text not null check (goal_type in ('divisible', 'weekly', 'daily', 'one_time')),
+  goal_type text not null check (goal_type in ('divisible', 'weekly', 'daily', 'one_time', 'specific_days')),
   total_amount integer,
   weekly_frequency integer,
   weekly_days integer[],
   daily_amount integer,
+  specific_days integer[],
   unit text not null default 'times',
   is_active boolean not null default true,
   created_at timestamp with time zone default timezone('utc', now())
@@ -126,7 +127,7 @@ begin
   values (
     new.id,
     new.raw_user_meta_data->>'full_name',
-    '2025-03-01'
+    '2026-02-17'
   );
   return new;
 end;

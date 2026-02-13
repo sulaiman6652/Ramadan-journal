@@ -2,6 +2,28 @@
 
 import { useState, useEffect } from 'react';
 import { GoalTemplate, GoalFormData, GoalType, TemplateCategory } from '@/types';
+import { RAMADAN_START_DATE, RAMADAN_DAYS } from '@/lib/goalCalculations';
+
+// Get the date string for a specific Ramadan day
+function getDateForDay(startDate: string, dayNumber: number): string {
+  const start = new Date(startDate + 'T00:00:00');
+  const target = new Date(start);
+  target.setDate(start.getDate() + dayNumber - 1);
+  return target.toISOString().split('T')[0];
+}
+
+// Format date as "Feb 17"
+function formatShortDate(dateStr: string): string {
+  const date = new Date(dateStr + 'T00:00:00');
+  const month = date.toLocaleDateString('en-US', { month: 'short' });
+  const day = date.getDate();
+  return `${month} ${day}`;
+}
+
+// Get the day of week (0=Sun, 6=Sat) for the start date
+function getStartDayOfWeek(): number {
+  return new Date(RAMADAN_START_DATE + 'T00:00:00').getDay();
+}
 
 interface CustomizeStepProps {
   template: GoalTemplate | null;
@@ -49,7 +71,7 @@ export default function CustomizeStep({ template, category, onConfirm, onBack }:
   const [dailyAmount, setDailyAmount] = useState<number>(1);
   const [specificDays, setSpecificDays] = useState<number[]>([]);
   const [specificDayAmount, setSpecificDayAmount] = useState<number>(1);
-  const [unit, setUnit] = useState('');
+  const [unit, setUnit] = useState('times');
   const [prompt, setPrompt] = useState('');
 
   useEffect(() => {
@@ -95,7 +117,7 @@ export default function CustomizeStep({ template, category, onConfirm, onBack }:
   };
 
   const selectAllDays = () => {
-    setSpecificDays(Array.from({ length: 30 }, (_, i) => i + 1));
+    setSpecificDays(Array.from({ length: RAMADAN_DAYS }, (_, i) => i + 1));
   };
 
   const clearAllDays = () => {
@@ -136,7 +158,6 @@ export default function CustomizeStep({ template, category, onConfirm, onBack }:
 
   const isValid =
     name.trim().length > 0 &&
-    unit.trim().length > 0 &&
     (goalType !== 'weekly' || weeklyDays.length > 0) &&
     (goalType !== 'specific_days' || specificDays.length > 0);
 
@@ -144,16 +165,16 @@ export default function CustomizeStep({ template, category, onConfirm, onBack }:
   const getDailyPreview = () => {
     switch (goalType) {
       case 'divisible':
-        const perDay = Math.ceil(totalAmount / 30);
-        return `~${perDay} ${unit} per day`;
+        const perDay = Math.ceil(totalAmount / RAMADAN_DAYS);
+        return `~${perDay} times per day`;
       case 'weekly':
         return `${weeklyFrequency}x per week`;
       case 'daily':
-        return `${dailyAmount} ${unit} every day`;
+        return `${dailyAmount} times every day`;
       case 'specific_days':
-        return `${specificDayAmount} ${unit} on ${specificDays.length} selected days`;
+        return `on ${specificDays.length} selected days`;
       case 'one_time':
-        return `${totalAmount} ${unit} once`;
+        return `once during Ramadan`;
       default:
         return '';
     }
@@ -276,12 +297,12 @@ export default function CustomizeStep({ template, category, onConfirm, onBack }:
                     className="flex-1 px-4 py-3.5 rounded-xl border-2 border-[var(--cream-dark)] bg-[var(--cream)]/30 text-[var(--green-dark)] text-center text-lg font-bold focus:border-[var(--green-medium)] focus:ring-4 focus:ring-[var(--green-medium)]/10 transition-all outline-none"
                   />
                   <span className="text-[var(--text-secondary)] font-medium min-w-[80px]">
-                    {unit || 'units'} total
+                    times total
                   </span>
                 </div>
                 {goalType === 'divisible' && (
                   <p className="text-sm text-[var(--gold)] bg-[var(--gold)]/10 px-4 py-2 rounded-lg">
-                    &#128161; This equals approximately <strong>{Math.ceil(totalAmount / 30)} {unit || 'units'}</strong> per day
+                    &#128161; This equals approximately <strong>{Math.ceil(totalAmount / RAMADAN_DAYS)} times</strong> per day
                   </p>
                 )}
               </div>
@@ -343,7 +364,7 @@ export default function CustomizeStep({ template, category, onConfirm, onBack }:
                   onChange={(e) => setDailyAmount(Math.max(1, parseInt(e.target.value) || 1))}
                   className="w-24 px-4 py-3.5 rounded-xl border-2 border-[var(--cream-dark)] bg-[var(--cream)]/30 text-[var(--green-dark)] text-center text-lg font-bold focus:border-[var(--green-medium)] focus:ring-4 focus:ring-[var(--green-medium)]/10 transition-all outline-none"
                 />
-                <span className="text-[var(--text-secondary)] font-medium">{unit || 'units'} every day</span>
+                <span className="text-[var(--text-secondary)] font-medium">times every day</span>
               </div>
             )}
 
@@ -358,7 +379,7 @@ export default function CustomizeStep({ template, category, onConfirm, onBack }:
                     onChange={(e) => setSpecificDayAmount(Math.max(1, parseInt(e.target.value) || 1))}
                     className="w-24 px-4 py-3.5 rounded-xl border-2 border-[var(--cream-dark)] bg-[var(--cream)]/30 text-[var(--green-dark)] text-center text-lg font-bold focus:border-[var(--green-medium)] focus:ring-4 focus:ring-[var(--green-medium)]/10 transition-all outline-none"
                   />
-                  <span className="text-[var(--text-secondary)] font-medium">{unit || 'units'} on each selected day</span>
+                  <span className="text-[var(--text-secondary)] font-medium">times on each selected day</span>
                 </div>
 
                 {/* Calendar picker */}
@@ -385,10 +406,10 @@ export default function CustomizeStep({ template, category, onConfirm, onBack }:
                     </div>
                   </div>
 
-                  {/* 30-day calendar grid */}
+                  {/* Calendar grid */}
                   <div className="rounded-xl bg-gradient-to-b from-[var(--cream)]/50 to-[var(--cream)] p-4 border border-[var(--cream-dark)]">
                     {/* Week header */}
-                    <div className="grid grid-cols-7 gap-1 mb-2">
+                    <div className="grid grid-cols-7 gap-1.5 mb-2">
                       {dayNames.map((name) => (
                         <div
                           key={name}
@@ -399,29 +420,38 @@ export default function CustomizeStep({ template, category, onConfirm, onBack }:
                       ))}
                     </div>
 
-                    {/* Calendar days - assuming Ramadan starts on a Saturday (day index 6) */}
-                    <div className="grid grid-cols-7 gap-1">
-                      {/* Empty cells before Day 1 (adjust based on actual start day) */}
-                      {Array.from({ length: 6 }).map((_, i) => (
-                        <div key={`empty-${i}`} className="aspect-square" />
+                    {/* Calendar days */}
+                    <div className="grid grid-cols-7 gap-1.5">
+                      {/* Empty cells before Day 1 */}
+                      {Array.from({ length: getStartDayOfWeek() }).map((_, i) => (
+                        <div key={`empty-${i}`} className="h-14" />
                       ))}
 
-                      {/* 30 days of Ramadan */}
-                      {Array.from({ length: 30 }).map((_, i) => {
+                      {/* All Ramadan days */}
+                      {Array.from({ length: RAMADAN_DAYS }).map((_, i) => {
                         const dayNumber = i + 1;
                         const isSelected = specificDays.includes(dayNumber);
+                        const dateStr = getDateForDay(RAMADAN_START_DATE, dayNumber);
+                        const shortDate = formatShortDate(dateStr);
                         return (
                           <button
                             key={dayNumber}
                             type="button"
                             onClick={() => toggleSpecificDay(dayNumber)}
-                            className={`aspect-square rounded-lg flex items-center justify-center text-sm font-bold transition-all duration-200 ${
+                            className={`h-14 rounded-lg flex flex-col items-center justify-center transition-all duration-200 ${
                               isSelected
-                                ? 'bg-gradient-to-br from-[var(--green-dark)] to-[var(--green-medium)] text-white shadow-md shadow-[var(--green-dark)]/20 scale-105'
+                                ? 'bg-gradient-to-br from-[var(--green-dark)] to-[var(--green-medium)] text-white shadow-md shadow-[var(--green-dark)]/20 scale-[1.02]'
                                 : 'bg-white border border-[var(--cream-dark)] text-[var(--text-secondary)] hover:border-[var(--green-light)] hover:shadow-md'
                             }`}
                           >
-                            {dayNumber}
+                            <span className={`text-[8px] font-medium leading-none mb-0.5 ${
+                              isSelected ? 'text-white/70' : 'text-[var(--text-muted)]'
+                            }`}>
+                              {shortDate}
+                            </span>
+                            <span className="text-sm font-bold leading-none">
+                              {dayNumber}
+                            </span>
                           </button>
                         );
                       })}
@@ -434,7 +464,7 @@ export default function CustomizeStep({ template, category, onConfirm, onBack }:
                       </p>
                       {specificDays.length > 0 && (
                         <p className="text-sm text-[var(--gold)]">
-                          Total: {specificDays.length * specificDayAmount} {unit || 'units'}
+                          Total: {specificDays.length * specificDayAmount} times
                         </p>
                       )}
                     </div>
@@ -453,23 +483,8 @@ export default function CustomizeStep({ template, category, onConfirm, onBack }:
             )}
           </div>
 
-          {/* Unit */}
-          <div>
-            <label className="flex items-center gap-2 text-sm font-semibold text-[var(--green-dark)] mb-3">
-              <span className="w-6 h-6 rounded-lg bg-[var(--green-dark)]/10 flex items-center justify-center text-xs">4</span>
-              What are you measuring?
-            </label>
-            <input
-              type="text"
-              value={unit}
-              onChange={(e) => setUnit(e.target.value)}
-              placeholder="e.g., pages, prayers, times"
-              className="w-full px-4 py-3.5 rounded-xl border-2 border-[var(--cream-dark)] bg-[var(--cream)]/30 text-[var(--green-dark)] placeholder-[var(--text-muted)] focus:border-[var(--green-medium)] focus:ring-4 focus:ring-[var(--green-medium)]/10 transition-all outline-none"
-            />
-          </div>
-
           {/* Preview */}
-          {name && unit && (
+          {name && (
             <div className="p-4 rounded-xl bg-gradient-to-br from-[var(--green-dark)]/5 to-[var(--green-medium)]/5 border border-[var(--green-dark)]/10">
               <p className="text-sm text-[var(--text-secondary)] mb-1">Your goal:</p>
               <p className="text-lg font-bold text-[var(--green-dark)]">

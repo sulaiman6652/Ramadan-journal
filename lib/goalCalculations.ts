@@ -1,7 +1,11 @@
 import { Goal, DailyTask } from '@/types';
 import { SupabaseClient } from '@supabase/supabase-js';
 
-export const RAMADAN_DAYS = 30;
+// Ramadan 1447 (2026) configuration
+// Start date: February 17, 2026
+// Length: 31 days
+export const RAMADAN_START_DATE = '2026-02-17';
+export const RAMADAN_DAYS = 31;
 
 /**
  * Returns today's date as an ISO string (YYYY-MM-DD).
@@ -20,7 +24,7 @@ export function getDayOfWeek(dateString: string): number {
 }
 
 /**
- * Returns the Ramadan day number (1-30) for a given date.
+ * Returns the Ramadan day number (1 to RAMADAN_DAYS) for a given date.
  */
 export function getDayNumber(dateString: string, startDate: string): number {
   const start = new Date(startDate + 'T00:00:00');
@@ -344,7 +348,7 @@ export function getDayOfWeekForDate(dateString: string): number {
 }
 
 /**
- * Generates daily tasks for ALL Ramadan days (1 through min(today, 30)).
+ * Generates daily tasks for ALL Ramadan days.
  * Batch inserts only missing tasks.
  */
 export async function generateAllDailyTasks(
@@ -353,12 +357,8 @@ export async function generateAllDailyTasks(
   goals: Goal[],
   startDate: string
 ): Promise<void> {
-  // Determine how many days to generate (up to 30, capped at today)
-  const today = getTodayString();
-  const todayDayNum = getDayNumber(today, startDate);
-  const maxDay = Math.min(todayDayNum, RAMADAN_DAYS);
-
-  if (maxDay < 1) return;
+  // Generate tasks for all Ramadan days (allows viewing before Ramadan starts)
+  const maxDay = RAMADAN_DAYS;
 
   // Fetch ALL existing tasks for this user
   const { data: existingData } = await supabase

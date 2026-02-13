@@ -43,8 +43,10 @@ export default function PrayerTimes({ compact = false }: PrayerTimesProps) {
         const month = today.getMonth() + 1;
         const year = today.getFullYear();
 
+        // Method 3 = Muslim World League (used by ICC UK / London Central Mosque)
+        // Fajr: 18°, Isha: 17°
         const response = await fetch(
-          `https://api.aladhan.com/v1/timingsByCity/${day}-${month}-${year}?city=London&country=United%20Kingdom&method=2`
+          `https://api.aladhan.com/v1/timingsByCity/${day}-${month}-${year}?city=London&country=United%20Kingdom&method=3`
         );
 
         if (!response.ok) {
@@ -144,9 +146,9 @@ export default function PrayerTimes({ compact = false }: PrayerTimesProps) {
 
   if (loading) {
     return (
-      <div className="rounded-2xl bg-white border border-[var(--cream-dark)] shadow-sm overflow-hidden">
+      <div className="h-full rounded-2xl bg-white border border-[var(--cream-dark)] shadow-lg overflow-hidden flex flex-col">
         <div className="h-1.5 bg-gradient-to-r from-[var(--green-dark)] via-[var(--gold)] to-[var(--green-dark)]" />
-        <div className="p-6 animate-pulse">
+        <div className="p-6 animate-pulse flex-1">
           <div className="h-6 bg-[var(--cream-dark)] rounded-lg w-32 mb-4" />
           <div className="space-y-3">
             {[1, 2, 3, 4, 5, 6].map((i) => (
@@ -169,9 +171,9 @@ export default function PrayerTimes({ compact = false }: PrayerTimesProps) {
 
   if (error || !prayerTimes) {
     return (
-      <div className="rounded-2xl bg-white border border-[var(--cream-dark)] shadow-sm overflow-hidden">
+      <div className="h-full rounded-2xl bg-white border border-[var(--cream-dark)] shadow-lg overflow-hidden flex flex-col">
         <div className="h-1.5 bg-gradient-to-r from-[var(--green-dark)] via-[var(--gold)] to-[var(--green-dark)]" />
-        <div className="p-6">
+        <div className="p-6 flex-1 flex items-center justify-center">
           <p className="text-sm text-[var(--text-muted)]">
             {error || 'Unable to load prayer times'}
           </p>
@@ -192,39 +194,39 @@ export default function PrayerTimes({ compact = false }: PrayerTimesProps) {
   // Compact version - shows next prayer prominently with all times in a grid
   if (compact) {
     return (
-      <div className="h-full rounded-2xl bg-white border border-[var(--cream-dark)] shadow-sm overflow-hidden">
-        <div className="h-full p-4 flex flex-col">
-          {/* Header row */}
-          <div className="flex items-center justify-between mb-3">
+      <div className="h-full rounded-2xl bg-white border border-[var(--cream-dark)] shadow-lg overflow-hidden">
+        {/* Green Header */}
+        <div className="relative bg-gradient-to-r from-[var(--green-dark)] to-[var(--green-medium)] px-3 py-2">
+          <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[var(--green-dark)] to-[var(--green-medium)] flex items-center justify-center">
-                <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-                </svg>
-              </div>
-              <span className="text-sm font-bold text-[var(--green-dark)]">Prayer Times</span>
+              <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+              </svg>
+              <span className="text-xs font-bold text-white">Prayer Times</span>
             </div>
-            <span className="text-xs text-[var(--text-muted)]">London</span>
+            <span className="text-[10px] text-white/60">London</span>
           </div>
+        </div>
 
+        <div className="p-3 flex flex-col">
           {/* Next Prayer - Highlight */}
           {nextPrayer && (
-            <div className="mb-3 p-3 rounded-xl bg-gradient-to-br from-[var(--green-dark)] to-[var(--green-medium)] text-center">
-              <p className="text-xs text-white/60 uppercase tracking-wide">Next</p>
-              <p className="text-lg font-bold text-white">{nextPrayer.name}</p>
-              <p className="text-xl font-bold text-[var(--gold)]">{formatTime(nextPrayer.time)}</p>
-              <p className="text-xs text-white/60">{getTimeUntilNext()}</p>
+            <div className="mb-3 p-3 rounded-lg bg-gradient-to-br from-[var(--green-dark)] to-[var(--green-medium)] text-center">
+              <p className="text-[9px] text-white/60 uppercase tracking-wide">Next</p>
+              <p className="text-sm font-bold text-white">{nextPrayer.name}</p>
+              <p className="text-lg font-bold text-[var(--gold)]">{formatTime(nextPrayer.time)}</p>
+              <p className="text-[10px] text-white/50">{getTimeUntilNext()}</p>
             </div>
           )}
 
           {/* Prayer times grid */}
-          <div className="grid grid-cols-2 gap-1.5 flex-1">
+          <div className="grid grid-cols-2 gap-1">
             {prayers.filter(p => p.name !== 'Sunrise').map((prayer) => {
               const isNext = nextPrayer?.name === prayer.name;
               return (
                 <div
                   key={prayer.name}
-                  className={`flex items-center justify-between px-2 py-1.5 rounded-lg text-xs ${
+                  className={`flex items-center justify-between px-2 py-1.5 rounded text-xs ${
                     isNext ? 'bg-[var(--gold)]/10' : 'bg-[var(--cream)]/50'
                   }`}
                 >
@@ -245,13 +247,13 @@ export default function PrayerTimes({ compact = false }: PrayerTimesProps) {
 
   // Full version
   return (
-    <div className="rounded-2xl bg-white border border-[var(--cream-dark)] shadow-sm overflow-hidden">
+    <div className="h-full rounded-2xl bg-white border border-[var(--cream-dark)] shadow-lg overflow-hidden flex flex-col">
       {/* Decorative top bar */}
-      <div className="h-1.5 bg-gradient-to-r from-[var(--green-dark)] via-[var(--gold)] to-[var(--green-dark)]" />
+      <div className="h-1.5 bg-gradient-to-r from-[var(--green-dark)] via-[var(--gold)] to-[var(--green-dark)] flex-shrink-0" />
 
-      <div className="p-6">
+      <div className="p-6 flex-1 flex flex-col">
         {/* Header */}
-        <div className="flex items-start justify-between mb-5">
+        <div className="flex items-start justify-between mb-5 flex-shrink-0">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--green-dark)] to-[var(--green-medium)] flex items-center justify-center shadow-lg shadow-[var(--green-dark)]/20">
               <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -276,7 +278,7 @@ export default function PrayerTimes({ compact = false }: PrayerTimesProps) {
 
         {/* Next Prayer Highlight */}
         {nextPrayer && (
-          <div className="mb-5 p-4 rounded-xl bg-gradient-to-br from-[var(--green-dark)] to-[var(--green-medium)] text-center shadow-lg shadow-[var(--green-dark)]/20">
+          <div className="mb-5 p-4 rounded-xl bg-gradient-to-br from-[var(--green-dark)] to-[var(--green-medium)] text-center shadow-lg shadow-[var(--green-dark)]/20 flex-shrink-0">
             <p className="text-xs uppercase tracking-widest text-white/60 mb-1">
               Next Prayer
             </p>
@@ -293,7 +295,7 @@ export default function PrayerTimes({ compact = false }: PrayerTimesProps) {
         )}
 
         {/* Prayer Times List */}
-        <div className="space-y-2">
+        <div className="space-y-2 flex-1">
           {prayers.map((prayer) => {
             const isNext = nextPrayer?.name === prayer.name;
             const isSunrise = prayer.name === 'Sunrise';
@@ -345,9 +347,9 @@ export default function PrayerTimes({ compact = false }: PrayerTimesProps) {
         </div>
 
         {/* Footer */}
-        <div className="mt-5 pt-4 border-t border-[var(--cream-dark)]">
+        <div className="mt-auto pt-4 border-t border-[var(--cream-dark)] flex-shrink-0">
           <p className="text-xs text-center text-[var(--text-muted)]">
-            Times from Aladhan API (ISNA method)
+            Muslim World League method (ICC UK)
           </p>
         </div>
       </div>
