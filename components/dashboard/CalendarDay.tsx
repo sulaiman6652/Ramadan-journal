@@ -157,10 +157,19 @@ export default function CalendarDay({
         </span>
       )}
 
-      {/* Checkmark for complete days */}
-      {status === 'complete' && (
-        <div className={`absolute -top-1 -left-1 w-3.5 h-3.5 bg-[var(--gold)] rounded-full flex items-center justify-center shadow-sm`}>
-          <svg className="w-2 h-2 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={4}>
+      {/* Checkmark for past complete days - prominent tick to show day passed with all tasks done */}
+      {status === 'complete' && !isToday && (
+        <div className="absolute -top-1.5 -left-1.5 w-5 h-5 bg-gradient-to-br from-[var(--gold)] to-[var(--gold-dark,#c4a052)] rounded-full flex items-center justify-center shadow-md border-2 border-white">
+          <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+          </svg>
+        </div>
+      )}
+
+      {/* Smaller checkmark for today if complete */}
+      {status === 'complete' && isToday && (
+        <div className="absolute -top-1 -left-1 w-4 h-4 bg-[var(--gold)] rounded-full flex items-center justify-center shadow-sm">
+          <svg className="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
           </svg>
         </div>
