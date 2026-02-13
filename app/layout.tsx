@@ -1,7 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import ServiceWorkerRegistration from '@/components/ServiceWorkerRegistration';
-import InstallPrompt from '@/components/InstallPrompt';
 
 export const metadata: Metadata = {
   title: 'Ramadan Journal - Track Your Spiritual Journey',
@@ -44,7 +43,6 @@ export default function RootLayout({
       <body className="min-h-screen islamic-pattern">
         {children}
         <ServiceWorkerRegistration />
-        <InstallPrompt />
       </body>
     </html>
   );
