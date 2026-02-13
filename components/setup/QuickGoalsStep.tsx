@@ -60,7 +60,7 @@ const quickGoals: QuickGoal[] = [
         description: 'All 30 nights of Ramadan',
         icon: '🌙',
         goalData: {
-          name: 'Pray Taraweeh',
+          name: 'Pray Taraweeh (Daily)',
           goal_type: 'daily',
           daily_amount: 1,
           unit: 'prayer',
@@ -71,7 +71,7 @@ const quickGoals: QuickGoal[] = [
         description: 'Friday, Saturday & Sunday nights',
         icon: '✨',
         goalData: {
-          name: 'Pray Taraweeh',
+          name: 'Pray Taraweeh (Weekends)',
           goal_type: 'weekly',
           weekly_frequency: 3,
           weekly_days: [5, 6, 0],
@@ -83,7 +83,7 @@ const quickGoals: QuickGoal[] = [
         description: 'Friday and Saturday nights only',
         icon: '🤲',
         goalData: {
-          name: 'Pray Taraweeh',
+          name: 'Pray Taraweeh (Fri & Sat)',
           goal_type: 'weekly',
           weekly_frequency: 2,
           weekly_days: [5, 6],

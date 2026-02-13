@@ -38,9 +38,12 @@ export default function CalendarGrid({
 
   // Calculate which week we're in (for week view)
   const getWeekDays = () => {
-    // Find which row/week today falls into
-    const todayPosition = startDayOfWeek + todayDay - 1;
-    const currentWeekStart = Math.floor(todayPosition / 7) * 7;
+    // Use day 1 if we're before Ramadan starts
+    const effectiveDay = Math.max(1, Math.min(todayDay, totalDays));
+
+    // Find which row/week the effective day falls into
+    const dayPosition = startDayOfWeek + effectiveDay - 1;
+    const currentWeekStart = Math.floor(dayPosition / 7) * 7;
 
     const weekDays: (number | null)[] = [];
 
@@ -103,7 +106,7 @@ export default function CalendarGrid({
           <>
             {weekDays.map((dayNumber, i) => {
               if (dayNumber === null) {
-                return <div key={`empty-${i}`} className="h-20 md:h-24" />;
+                return <div key={`empty-${i}`} className="h-14 md:h-16" />;
               }
 
               const dayStatus = statusMap.get(dayNumber);
@@ -118,18 +121,17 @@ export default function CalendarGrid({
               const dateStr = dateObj.toISOString().split('T')[0];
 
               return (
-                <div key={dayNumber} className="h-20 md:h-24">
-                  <CalendarDay
-                    dayNumber={dayNumber}
-                    date={dateStr}
-                    status={status}
-                    isToday={dayNumber === todayDay}
-                    isSelected={dayNumber === selectedDay}
-                    taskCount={dayStatus?.totalTasks ?? 0}
-                    completedCount={dayStatus?.completedTasks ?? 0}
-                    onClick={() => onDayClick(dayNumber)}
-                  />
-                </div>
+                <CalendarDay
+                  key={dayNumber}
+                  dayNumber={dayNumber}
+                  date={dateStr}
+                  status={status}
+                  isToday={dayNumber === todayDay}
+                  isSelected={dayNumber === selectedDay}
+                  taskCount={dayStatus?.totalTasks ?? 0}
+                  completedCount={dayStatus?.completedTasks ?? 0}
+                  onClick={() => onDayClick(dayNumber)}
+                />
               );
             })}
           </>
