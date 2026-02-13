@@ -37,6 +37,7 @@ export default function DashboardPage() {
   const [showTaskModal, setShowTaskModal] = useState(false);
   const [showNotesModal, setShowNotesModal] = useState(false);
   const [showDuaModal, setShowDuaModal] = useState(false);
+  const [calendarView, setCalendarView] = useState<'month' | 'week'>('month');
 
   // Check if we're in the last 10 nights
   const isInLastTenNights = todayDay >= 21 && todayDay <= 30;
@@ -364,33 +365,8 @@ export default function DashboardPage() {
                   </div>
                 </div>
 
-                {/* Action Buttons */}
-                <div className="flex flex-wrap gap-2">
-                  <Link
-                    href="/goals"
-                    className="inline-flex items-center gap-1.5 px-3 py-2 bg-white/10 hover:bg-white/20 text-white text-xs font-medium rounded-lg transition-all border border-white/20"
-                  >
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                    </svg>
-                    Goals
-                  </Link>
-                  <button
-                    onClick={() => setShowNotesModal(true)}
-                    className="inline-flex items-center gap-1.5 px-3 py-2 bg-[var(--gold)] text-[var(--green-dark)] text-xs font-semibold rounded-lg transition-all hover:bg-[var(--gold-light)]"
-                  >
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                    </svg>
-                    Note
-                  </button>
-                  <button
-                    onClick={() => setShowDuaModal(true)}
-                    className="inline-flex items-center gap-1.5 px-3 py-2 bg-white/10 hover:bg-white/20 text-white text-xs font-medium rounded-lg transition-all border border-white/20"
-                  >
-                    <span className="text-sm">🤲</span>
-                    Duas
-                  </button>
+                {/* Action Buttons - Hidden on mobile, shown below header on mobile */}
+                <div className="hidden sm:flex flex-wrap gap-2">
                   {hasIncompleteTodayTasks && (
                     <Link
                       href="/review"
@@ -506,6 +482,61 @@ export default function DashboardPage() {
           </div>
         </div>
 
+        {/* Quick Actions - Prominent Buttons */}
+        <div className="grid grid-cols-3 gap-3">
+          <button
+            onClick={() => setShowNotesModal(true)}
+            className="group relative overflow-hidden rounded-2xl bg-white border-2 border-[var(--cream-dark)] hover:border-[var(--gold)] shadow-sm hover:shadow-lg transition-all duration-200 p-4"
+          >
+            <div className="absolute inset-0 bg-gradient-to-br from-[var(--gold)]/0 to-[var(--gold)]/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="relative flex flex-col items-center gap-2">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[var(--gold)] to-[var(--gold-light)] flex items-center justify-center shadow-lg shadow-[var(--gold)]/30 group-hover:scale-110 transition-transform">
+                <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                </svg>
+              </div>
+              <div className="text-center">
+                <h3 className="font-bold text-[var(--green-dark)] text-sm">Notes</h3>
+                <p className="text-[10px] text-[var(--text-muted)] hidden sm:block">Write reflections</p>
+              </div>
+            </div>
+          </button>
+
+          <button
+            onClick={() => setShowDuaModal(true)}
+            className="group relative overflow-hidden rounded-2xl bg-white border-2 border-[var(--cream-dark)] hover:border-[var(--green-medium)] shadow-sm hover:shadow-lg transition-all duration-200 p-4"
+          >
+            <div className="absolute inset-0 bg-gradient-to-br from-[var(--green-dark)]/0 to-[var(--green-dark)]/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="relative flex flex-col items-center gap-2">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[var(--green-dark)] to-[var(--green-medium)] flex items-center justify-center shadow-lg shadow-[var(--green-dark)]/30 group-hover:scale-110 transition-transform">
+                <span className="text-2xl">🤲</span>
+              </div>
+              <div className="text-center">
+                <h3 className="font-bold text-[var(--green-dark)] text-sm">Duas</h3>
+                <p className="text-[10px] text-[var(--text-muted)] hidden sm:block">Browse prayers</p>
+              </div>
+            </div>
+          </button>
+
+          <Link
+            href="/goals"
+            className="group relative overflow-hidden rounded-2xl bg-white border-2 border-[var(--cream-dark)] hover:border-[var(--green-light)] shadow-sm hover:shadow-lg transition-all duration-200 p-4"
+          >
+            <div className="absolute inset-0 bg-gradient-to-br from-[var(--green-light)]/0 to-[var(--green-light)]/20 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="relative flex flex-col items-center gap-2">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[var(--green-light)] to-[var(--green-medium)] flex items-center justify-center shadow-lg shadow-[var(--green-medium)]/30 group-hover:scale-110 transition-transform">
+                <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                </svg>
+              </div>
+              <div className="text-center">
+                <h3 className="font-bold text-[var(--green-dark)] text-sm">Goals</h3>
+                <p className="text-[10px] text-[var(--text-muted)] hidden sm:block">Manage goals</p>
+              </div>
+            </div>
+          </Link>
+        </div>
+
         {/* Last 10 Nights Card - Only show during last 10 nights */}
         {isInLastTenNights && (
           <div className="rounded-2xl bg-white border border-[var(--cream-dark)] shadow-lg overflow-hidden">
@@ -613,9 +644,30 @@ export default function DashboardPage() {
                   <p className="text-white/60 text-xs">Track your daily progress</p>
                 </div>
               </div>
-              <span className="px-3 py-1 bg-white/10 rounded-full text-xs text-white/80">
-                {RAMADAN_DAYS} Days
-              </span>
+
+              {/* View Toggle */}
+              <div className="flex items-center gap-1 bg-white/10 rounded-xl p-1">
+                <button
+                  onClick={() => setCalendarView('week')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                    calendarView === 'week'
+                      ? 'bg-white text-[var(--green-dark)] shadow-sm'
+                      : 'text-white/70 hover:text-white hover:bg-white/10'
+                  }`}
+                >
+                  Week
+                </button>
+                <button
+                  onClick={() => setCalendarView('month')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                    calendarView === 'month'
+                      ? 'bg-white text-[var(--green-dark)] shadow-sm'
+                      : 'text-white/70 hover:text-white hover:bg-white/10'
+                  }`}
+                >
+                  Month
+                </button>
+              </div>
             </div>
           </div>
 
@@ -626,6 +678,7 @@ export default function DashboardPage() {
               todayDay={todayDay}
               selectedDay={selectedDay}
               totalDays={RAMADAN_DAYS}
+              viewMode={calendarView}
               onDayClick={handleDayClick}
             />
 
