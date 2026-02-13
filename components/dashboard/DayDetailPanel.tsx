@@ -396,8 +396,10 @@ export default function DayDetailPanel({
     const note = getDayNote(dayNumber);
     setDayNote(note);
     setEditedNoteText(note.text);
-    setReflection(getDailyReflection(dayNumber));
-    setIsEditingReflection(false);
+    const savedReflection = getDailyReflection(dayNumber);
+    setReflection(savedReflection);
+    // Start in edit mode if there's no saved reflection
+    setIsEditingReflection(!savedReflection);
     setReflectionSaved(false);
   }, [dayNumber]);
 
