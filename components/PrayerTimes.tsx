@@ -194,52 +194,61 @@ export default function PrayerTimes({ compact = false }: PrayerTimesProps) {
   // Compact version - shows next prayer prominently with all times in a grid
   if (compact) {
     return (
-      <div className="h-full rounded-2xl bg-white border border-[var(--cream-dark)] shadow-lg overflow-hidden">
-        {/* Green Header */}
-        <div className="relative bg-gradient-to-r from-[var(--green-dark)] to-[var(--green-medium)] px-3 py-2">
+      <div className="h-full rounded-2xl bg-white border border-[var(--cream-dark)] shadow-lg overflow-hidden flex flex-col">
+        {/* Green Header with Next Prayer */}
+        <div className="relative bg-gradient-to-r from-[var(--green-dark)] to-[var(--green-medium)] px-3 py-2.5">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-              </svg>
-              <span className="text-xs font-bold text-white">Prayer Times</span>
+              <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+              </div>
+              <div>
+                <p className="text-[10px] text-white/60 uppercase tracking-wide">Prayer Times</p>
+                <p className="text-xs text-white/70">London</p>
+              </div>
             </div>
-            <span className="text-[10px] text-white/60">London</span>
+            {nextPrayer && (
+              <div className="text-right">
+                <p className="text-[9px] text-white/50 uppercase">Next</p>
+                <p className="text-sm font-bold text-[var(--gold)]">{nextPrayer.name}</p>
+                <p className="text-xs text-white font-semibold">{formatTime(nextPrayer.time)}</p>
+              </div>
+            )}
           </div>
         </div>
 
-        <div className="p-3 flex flex-col">
-          {/* Next Prayer - Highlight */}
-          {nextPrayer && (
-            <div className="mb-3 p-3 rounded-lg bg-gradient-to-br from-[var(--green-dark)] to-[var(--green-medium)] text-center">
-              <p className="text-[9px] text-white/60 uppercase tracking-wide">Next</p>
-              <p className="text-sm font-bold text-white">{nextPrayer.name}</p>
-              <p className="text-lg font-bold text-[var(--gold)]">{formatTime(nextPrayer.time)}</p>
-              <p className="text-[10px] text-white/50">{getTimeUntilNext()}</p>
-            </div>
-          )}
-
-          {/* Prayer times grid */}
-          <div className="grid grid-cols-2 gap-1">
-            {prayers.filter(p => p.name !== 'Sunrise').map((prayer) => {
-              const isNext = nextPrayer?.name === prayer.name;
-              return (
-                <div
-                  key={prayer.name}
-                  className={`flex items-center justify-between px-2 py-1.5 rounded text-xs ${
-                    isNext ? 'bg-[var(--gold)]/10' : 'bg-[var(--cream)]/50'
-                  }`}
-                >
-                  <span className={`font-medium ${isNext ? 'text-[var(--green-dark)]' : 'text-[var(--text-secondary)]'}`}>
+        {/* Prayer times list */}
+        <div className="flex-1 p-2 flex flex-col justify-between">
+          {prayers.filter(p => p.name !== 'Sunrise').map((prayer) => {
+            const isNext = nextPrayer?.name === prayer.name;
+            return (
+              <div
+                key={prayer.name}
+                className={`flex items-center justify-between px-3 py-2 rounded-xl transition-all ${
+                  isNext
+                    ? 'bg-gradient-to-r from-[var(--gold)]/15 to-[var(--gold)]/5 border border-[var(--gold)]/20'
+                    : 'hover:bg-[var(--cream)]/50'
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <span className="text-base">{prayer.icon}</span>
+                  <span className={`text-sm font-bold ${isNext ? 'text-[var(--green-dark)]' : 'text-[var(--text-secondary)]'}`}>
                     {prayer.name}
                   </span>
-                  <span className={`font-bold ${isNext ? 'text-[var(--gold)]' : 'text-[var(--green-dark)]'}`}>
+                </div>
+                <div className="flex items-center gap-2">
+                  {isNext && (
+                    <span className="text-[10px] text-[var(--gold)] font-medium">{getTimeUntilNext()}</span>
+                  )}
+                  <span className={`text-sm font-bold ${isNext ? 'text-[var(--gold)]' : 'text-[var(--green-dark)]'}`}>
                     {formatTime(prayer.time)}
                   </span>
                 </div>
-              );
-            })}
-          </div>
+              </div>
+            );
+          })}
         </div>
       </div>
     );
