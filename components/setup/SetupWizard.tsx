@@ -249,7 +249,7 @@ export default function SetupWizard() {
               <span className="text-3xl">&#9790;</span>
             </div>
             <h1 className="text-3xl sm:text-4xl font-bold text-[var(--green-dark)] mb-2">
-              Ramadan Journal
+              My Ramadan Tracker
             </h1>
             <p className="text-[var(--text-secondary)] text-lg">
               Set your goals and begin your blessed journey

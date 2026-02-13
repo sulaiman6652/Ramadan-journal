@@ -54,7 +54,7 @@ function generateICSContent(title: string, description: string, dates: string[])
 
   let icsContent = `BEGIN:VCALENDAR
 VERSION:2.0
-PRODID:-//Ramadan Journal//EN
+PRODID:-//My Ramadan Tracker//EN
 CALSCALE:GREGORIAN
 METHOD:PUBLISH
 `;

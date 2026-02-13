@@ -92,7 +92,7 @@ export default function SignupPage() {
             style={{ color: 'var(--green-dark)' }}
           >
             <span className="text-3xl">&#9789;</span>
-            <span>Ramadan Journal</span>
+            <span>My Ramadan Tracker</span>
           </Link>
           <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
             Begin your Ramadan journey with intention.

@@ -3,14 +3,14 @@ import './globals.css';
 import ServiceWorkerRegistration from '@/components/ServiceWorkerRegistration';
 
 export const metadata: Metadata = {
-  title: 'Ramadan Journal - Track Your Spiritual Journey',
+  title: 'My Ramadan Tracker - Track Your Spiritual Journey',
   description:
     'A beautiful and thoughtful companion for your Ramadan goals. Track Quran reading, prayers, charity, and more with smart goal distribution.',
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
-    title: 'Ramadan Journal',
+    title: 'My Ramadan Tracker',
   },
   formatDetection: {
     telephone: false,
@@ -37,7 +37,7 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/icons/icon-192x192.svg" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="apple-mobile-web-app-title" content="Ramadan Journal" />
+        <meta name="apple-mobile-web-app-title" content="My Ramadan Tracker" />
         <meta name="mobile-web-app-capable" content="yes" />
       </head>
       <body className="min-h-screen islamic-pattern">

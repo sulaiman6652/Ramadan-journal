@@ -351,7 +351,7 @@ export default function Home() {
                 <span className="text-lg text-white">&#9790;</span>
               </div>
               <span className="text-lg font-bold text-[var(--green-dark)]">
-                Ramadan Journal
+                My Ramadan Tracker
               </span>
             </div>
             <div className="flex items-center gap-3">
@@ -721,7 +721,7 @@ export default function Home() {
                 <span className="text-sm text-white">&#9790;</span>
               </div>
               <span className="font-bold text-[var(--green-dark)]">
-                Ramadan Journal
+                My Ramadan Tracker
               </span>
             </div>
             <p className="text-sm text-[var(--text-muted)]">

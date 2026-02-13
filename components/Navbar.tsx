@@ -36,7 +36,7 @@ export default function Navbar() {
               style={{ color: 'var(--green-dark)' }}
             >
               <span className="text-2xl">&#9789;</span>
-              <span className="hidden sm:inline">Ramadan Journal</span>
+              <span className="hidden sm:inline">My Ramadan Tracker</span>
               <span className="sm:hidden">Journal</span>
             </Link>
 
