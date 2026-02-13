@@ -118,7 +118,9 @@ function TaskCard({
   onDecrement: (taskId: string) => void;
 }) {
   const goalName = goal?.name ?? 'Unknown Goal';
-  const hasMultipleTarget = task.target_amount > 1;
+  // Check if this is a charity goal - these should only show complete/not complete
+  const isCharityGoal = goalName.toLowerCase().includes('charity') || goalName.toLowerCase().includes('sadaqah') || goalName.toLowerCase().includes('donate');
+  const hasMultipleTarget = task.target_amount > 1 && !isCharityGoal;
   const [note, setNote] = useState('');
   const progressPercent = task.target_amount > 0
     ? Math.round((task.completed_amount / task.target_amount) * 100)
@@ -146,10 +148,13 @@ function TaskCard({
               <p className="text-white/70 text-sm">Completed - Alhamdulillah!</p>
             </div>
           </div>
-          <div className="text-right">
-            <span className="text-2xl font-bold">{task.completed_amount}/{task.target_amount}</span>
-            <p className="text-white/60 text-xs">{goal?.unit}</p>
-          </div>
+          {/* Hide amount for charity goals - just show checkmark */}
+          {!isCharityGoal && (
+            <div className="text-right">
+              <span className="text-2xl font-bold">{task.completed_amount}/{task.target_amount}</span>
+              <p className="text-white/60 text-xs">{goal?.unit}</p>
+            </div>
+          )}
         </div>
         <button
           onClick={() => onNotComplete(task.id)}
@@ -191,15 +196,18 @@ function TaskCard({
               <p className="text-[var(--text-muted)] text-sm">{goal?.unit}</p>
             </div>
           </div>
-          <div className={`px-4 py-2 rounded-xl text-center ${
-            progressPercent > 0
-              ? 'bg-gradient-to-br from-[var(--gold)]/10 to-[var(--gold)]/5'
-              : 'bg-[var(--cream)]'
-          }`}>
-            <span className={`text-xl font-bold ${progressPercent > 0 ? 'text-[var(--gold)]' : 'text-[var(--text-secondary)]'}`}>
-              {task.completed_amount}/{task.target_amount}
-            </span>
-          </div>
+          {/* Hide amount counter for charity goals */}
+          {!isCharityGoal && (
+            <div className={`px-4 py-2 rounded-xl text-center ${
+              progressPercent > 0
+                ? 'bg-gradient-to-br from-[var(--gold)]/10 to-[var(--gold)]/5'
+                : 'bg-[var(--cream)]'
+            }`}>
+              <span className={`text-xl font-bold ${progressPercent > 0 ? 'text-[var(--gold)]' : 'text-[var(--text-secondary)]'}`}>
+                {task.completed_amount}/{task.target_amount}
+              </span>
+            </div>
+          )}
         </div>
 
         {/* Note from yesterday */}
