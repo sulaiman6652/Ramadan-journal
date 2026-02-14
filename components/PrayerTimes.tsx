@@ -78,9 +78,21 @@ export default function PrayerTimes({ compact = false }: PrayerTimesProps) {
         const month = today.getMonth() + 1;
         const year = today.getFullYear();
 
-        // Method 3 = Muslim World League
+        // Select calculation method based on country
+        // Method 8 = Gulf Region (UAE, Kuwait, Qatar, Bahrain, Oman)
+        // Method 4 = Umm Al-Qura (Saudi Arabia)
+        // Method 3 = Muslim World League (default)
+        const gulfCountries = ['United Arab Emirates', 'Kuwait', 'Qatar', 'Bahrain', 'Oman'];
+        let method = 3; // Default: Muslim World League
+
+        if (gulfCountries.includes(country)) {
+          method = 8; // Gulf Region
+        } else if (country === 'Saudi Arabia') {
+          method = 4; // Umm Al-Qura, Makkah
+        }
+
         const response = await fetch(
-          `https://api.aladhan.com/v1/timingsByCity/${day}-${month}-${year}?city=${encodeURIComponent(city)}&country=${encodeURIComponent(country)}&method=3`
+          `https://api.aladhan.com/v1/timingsByCity/${day}-${month}-${year}?city=${encodeURIComponent(city)}&country=${encodeURIComponent(country)}&method=${method}`
         );
 
         if (!response.ok) {
@@ -392,7 +404,11 @@ export default function PrayerTimes({ compact = false }: PrayerTimesProps) {
         {/* Footer */}
         <div className="mt-auto pt-4 border-t border-[var(--cream-dark)] flex-shrink-0">
           <p className="text-xs text-center text-[var(--text-muted)]">
-            Muslim World League method (ICC UK)
+            {['United Arab Emirates', 'Kuwait', 'Qatar', 'Bahrain', 'Oman'].includes(userLocation.country)
+              ? 'Gulf Region method'
+              : userLocation.country === 'Saudi Arabia'
+              ? 'Umm Al-Qura method'
+              : 'Muslim World League method'}
           </p>
         </div>
       </div>
