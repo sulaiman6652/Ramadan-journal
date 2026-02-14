@@ -4,6 +4,8 @@ export type TemplateCategory = 'quran' | 'prayer' | 'charity' | 'dhikr' | 'fasti
 export interface Profile {
   id: string;
   full_name: string | null;
+  city: string | null;
+  country: string | null;
   ramadan_start_date: string;
   created_at: string;
 }

@@ -4,17 +4,22 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
+import { CITIES } from '@/lib/cities';
 
 export default function SignupPage() {
   const router = useRouter();
   const supabase = createClient();
 
   const [fullName, setFullName] = useState('');
+  const [selectedCity, setSelectedCity] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  // Get the selected city object
+  const cityData = CITIES.find(c => c.label === selectedCity);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,6 +35,11 @@ export default function SignupPage() {
       return;
     }
 
+    if (!selectedCity || !cityData) {
+      setError('Please select your city for accurate prayer times.');
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -39,6 +49,8 @@ export default function SignupPage() {
         options: {
           data: {
             full_name: fullName,
+            city: cityData.city,
+            country: cityData.country,
           },
         },
       });
@@ -122,6 +134,29 @@ export default function SignupPage() {
                 onChange={(e) => setFullName(e.target.value)}
                 required
               />
+            </div>
+
+            <div>
+              <label htmlFor="city" className="input-label">
+                Your City
+                <span className="text-xs font-normal text-[var(--text-muted)] ml-2">
+                  (for prayer times)
+                </span>
+              </label>
+              <select
+                id="city"
+                className="input"
+                value={selectedCity}
+                onChange={(e) => setSelectedCity(e.target.value)}
+                required
+              >
+                <option value="">Select your city...</option>
+                {CITIES.map((city) => (
+                  <option key={city.label} value={city.label}>
+                    {city.label}
+                  </option>
+                ))}
+              </select>
             </div>
 
             <div>

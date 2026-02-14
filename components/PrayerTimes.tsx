@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { createClient } from '@/lib/supabase/client';
 
 interface PrayerTimesData {
   Fajr: string;
@@ -34,19 +35,52 @@ export default function PrayerTimes({ compact = false }: PrayerTimesProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [nextPrayer, setNextPrayer] = useState<{ name: string; time: string } | null>(null);
+  const [userLocation, setUserLocation] = useState<{ city: string; country: string }>({
+    city: 'London',
+    country: 'United Kingdom',
+  });
 
   useEffect(() => {
-    async function fetchPrayerTimes() {
+    async function fetchUserLocationAndPrayerTimes() {
       try {
+        // Get user's location from their profile
+        const supabase = createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+
+        let city = 'London';
+        let country = 'United Kingdom';
+
+        if (user) {
+          // First check user metadata (set during signup)
+          if (user.user_metadata?.city && user.user_metadata?.country) {
+            city = user.user_metadata.city;
+            country = user.user_metadata.country;
+          } else {
+            // Fallback to profile table
+            const { data: profile } = await supabase
+              .from('profiles')
+              .select('city, country')
+              .eq('id', user.id)
+              .single();
+
+            if (profile?.city && profile?.country) {
+              city = profile.city;
+              country = profile.country;
+            }
+          }
+        }
+
+        setUserLocation({ city, country });
+
+        // Fetch prayer times
         const today = new Date();
         const day = today.getDate();
         const month = today.getMonth() + 1;
         const year = today.getFullYear();
 
-        // Method 3 = Muslim World League (used by ICC UK / London Central Mosque)
-        // Fajr: 18°, Isha: 17°
+        // Method 3 = Muslim World League
         const response = await fetch(
-          `https://api.aladhan.com/v1/timingsByCity/${day}-${month}-${year}?city=London&country=United%20Kingdom&method=3`
+          `https://api.aladhan.com/v1/timingsByCity/${day}-${month}-${year}?city=${encodeURIComponent(city)}&country=${encodeURIComponent(country)}&method=3`
         );
 
         if (!response.ok) {
@@ -68,7 +102,7 @@ export default function PrayerTimes({ compact = false }: PrayerTimesProps) {
       }
     }
 
-    fetchPrayerTimes();
+    fetchUserLocationAndPrayerTimes();
 
     const interval = setInterval(() => {
       if (prayerTimes) {
@@ -206,7 +240,7 @@ export default function PrayerTimes({ compact = false }: PrayerTimesProps) {
               </div>
               <div>
                 <p className="text-[10px] text-white/60 uppercase tracking-wide">Prayer Times</p>
-                <p className="text-xs text-white/70">London</p>
+                <p className="text-xs text-white/70">{userLocation.city}</p>
               </div>
             </div>
             {nextPrayer && (
@@ -274,7 +308,7 @@ export default function PrayerTimes({ compact = false }: PrayerTimesProps) {
                 Prayer Times
               </h3>
               <p className="text-xs text-[var(--text-muted)]">
-                London, UK
+                {userLocation.city}, {userLocation.country}
               </p>
             </div>
           </div>

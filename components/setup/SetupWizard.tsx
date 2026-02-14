@@ -186,6 +186,8 @@ export default function SetupWizard() {
           .insert({
             id: user.id,
             full_name: user.user_metadata?.full_name || null,
+            city: user.user_metadata?.city || null,
+            country: user.user_metadata?.country || null,
             ramadan_start_date: RAMADAN_START_DATE,
           });
 
