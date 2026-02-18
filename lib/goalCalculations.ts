@@ -2,10 +2,10 @@ import { Goal, DailyTask } from '@/types';
 import { SupabaseClient } from '@supabase/supabase-js';
 
 // Ramadan 1447 (2026) configuration
-// Start date: February 17, 2026
-// Length: 31 days
-export const RAMADAN_START_DATE = '2026-02-17';
-export const RAMADAN_DAYS = 31;
+// Start date: February 18, 2026
+// Length: 30 days
+export const RAMADAN_START_DATE = '2026-02-18';
+export const RAMADAN_DAYS = 30;
 
 /**
  * Returns today's date as an ISO string (YYYY-MM-DD).
